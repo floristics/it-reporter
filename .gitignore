@@ -1,8 +1,8 @@
 /node_modules
 /public/storage
 /storage/*.key
-/vendor
-!/vendor/laravelrus
+/vendor/*
+!/vendor/laravelrus/
 /.idea
 Homestead.json
 Homestead.yaml
