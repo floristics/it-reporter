@@ -1,10 +1,10 @@
 <?php
 
-namespace SleepingOwl\Admin\Repository;
+namespace SleepingOwl\Admin\Repositories;
 
 use Illuminate\Database\Eloquent\Model;
-use SleepingOwl\Admin\Contracts\RepositoryInterface;
 use SleepingOwl\Admin\Exceptions\RepositoryException;
+use SleepingOwl\Admin\Contracts\Repositories\RepositoryInterface;
 
 class BaseRepository implements RepositoryInterface
 {
@@ -25,20 +25,6 @@ class BaseRepository implements RepositoryInterface
      * @var string[]
      */
     protected $with = [];
-
-    /**
-     * @param string|Model $class
-     *
-     * @throws RepositoryException
-     */
-    public function __construct($class)
-    {
-        if ($class instanceof Model) {
-            $this->setModel($class);
-        } else {
-            $this->setClass($class);
-        }
-    }
 
     /**
      * @return string

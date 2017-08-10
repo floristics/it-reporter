@@ -7,11 +7,15 @@ use SleepingOwl\Admin\Contracts\FormInterface;
 use SleepingOwl\Admin\Section;
 use AdminColumn;
 use AdminDisplay;
-use AdminForm;
-use AdminFormElement;
+use \SleepingOwl\Admin\Facades\Form as AdminForm;
+use \SleepingOwl\Admin\Facades\FormElement as AdminFormElement;
+use App\FundamentalSetting;
+use App\CatalogItem;
+use App\Helpers\Helper;
 
 class Licenses extends Section
 {
+
     /**
      * @var bool
      */
@@ -33,16 +37,19 @@ class Licenses extends Section
     public function onDisplay()
     {
 
-        return AdminDisplay::datatables()//->with('departure')
+        $data = AdminDisplay::datatables()//->with('departure')
         ->setHtmlAttribute('class', 'table-primary')
             ->setColumns(
-               /* AdminColumn::text('id', '#')->setWidth('30px'),
-                AdminColumn::text('organisation_id', 'Название организации')->setWidth('30px'),*/
                 AdminColumn::text('CatalogItem.name', 'Название')->setWidth('100px'),
                 AdminColumn::custom('Кол-во')->setCallback(function($model) {
                     return  strrev(wordwrap(strrev($model->quantity), 3, " ",TRUE)) . ' шт.';
                 })->setWidth('30px')
             )->paginate(25);
+
+        $data->setApply(function($query) {
+            $query->where('organisation_id', '=', auth()->user()->GetOrgId());
+        });
+        return $data;
     }
 
     /**
@@ -52,7 +59,19 @@ class Licenses extends Section
      */
     public function onEdit($id)
     {
-        // todo: remove if unused
+        $data= AdminForm::panel();
+        $data->addBody(AdminFormElement::columns()
+            ->addColumn([AdminFormElement::select('catalog_item_id','Программный продукт')->setModelForOptions(CatalogItem::class)->setLoadOptionsQueryPreparer(function($item, $query) {
+                return $query->where('catalog_id', Helper::getVarValue('license_list'));
+            })
+                ->setDisplay('name')
+                ->required('Укажите программный продукт')],6)
+            ->addColumn([AdminFormElement::text('quantity','Кол-во лицензий')->required('Укажите значение')],6)
+            ,AdminFormElement::hidden('organisation_id')->setDefaultValue(auth()->user()->getOrgId())
+
+        );
+
+         return $data;
     }
 
     /**

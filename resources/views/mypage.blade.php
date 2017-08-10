@@ -52,45 +52,11 @@
         </div>
     </div>
 </div>
-
-
-<div class="row">
+    
+   <div class="row">
+    <!-- Лицензии -->
+    <!-- Привязку к рабочим местам пока исключим -->
     <div class="col-md-6">
-        <!-- Бюджет -->
-        <div class="portlet light bordered">
-            <div class="portlet-title">
-                <div class="caption font-blue-madison uppercase">
-                    Бюджет ИТ
-                </div>
-                @if($is_user_org_manager)
-                <div class="tools">
-                    <a href="../budgets" class="fa fa-pencil collapse" data-original-title="Изменить информацию" title="Изменить информацию"> </a>
-                </div>
-                @endif
-            </div>
-            <div class="table-scrollable">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>#</th><th>Статья расходов</th><th>Сумма</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @foreach( $budgets as $budget )
-                        <tr>
-                            <td>#</td>
-                            <td>{{ $budget->name }}</td>
-                            <td>{{ $budget->value }} руб.</td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <!-- Лицензии -->
-        <!-- Привязку к рабочим местам пока исключим -->
         <div class="portlet light bordered">
             <div class="portlet-title">
                 <div class="caption font-blue-madison uppercase">
@@ -121,9 +87,83 @@
                 </table>
             </div>
         </div>
+        <!-- Бюджет АСУ ТП-->
+@if(!$budgets_asutp->isEmpty())
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption font-blue-madison uppercase">
+                    Бюджет АСУ ТП
+                </div>
+                @if($is_user_org_manager)
+                    <div class="tools">
+                        <a href="../budgets" class="fa fa-pencil collapse" data-original-title="Изменить информацию" title="Изменить информацию"> </a>
+                    </div>
+                @endif
+            </div>
+            <div class="table-scrollable">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>#</th><th>Статья расходов</th><th>Сумма</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach( $budgets_asutp as $budget )
+                        <tr>
+                            <td>#</td>
+                            <td>{{ $budget->name }}</td>
+                            <td>{{ $budget->value }} руб.</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+@endif
     </div>
-</div>
 
+    
+
+
+        
+
+    <div class="col-md-6">
+ 
+        <!-- Бюджет -->
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption font-blue-madison uppercase">
+                    Бюджет ИТ
+                </div>
+                @if($is_user_org_manager)
+                <div class="tools">
+                    <a href="../budgets" class="fa fa-pencil collapse" data-original-title="Изменить информацию" title="Изменить информацию"> </a>
+                </div>
+                @endif
+            </div>
+            <div class="table-scrollable">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th><th>Статья расходов</th><th>Сумма</th>
+                        </tr>
+                    </thead>
+                   
+                    @foreach( $budgets as $budget )
+                        <tr>
+                            <td>#</td>
+                            <td>{{ $budget->name }}</td>
+                            <td>{{ $budget->value }} руб.</td>
+                        </tr>
+                    @endforeach
+                    
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+ 
+   
 @else
 <p class="m-heading-1 border-blue-madison m-bordered">Выберите организацию, чтобы увидеть отчет</p>
 @endif

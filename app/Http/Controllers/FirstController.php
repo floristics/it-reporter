@@ -34,7 +34,7 @@ class FirstController extends AdminController
      */
     public function index(Request $request)
     {
-        if (auth()->user()->isUser()) {
+        if (auth()->user()->isUser() && !auth()->user()->isAdmin()) {
             //Если USER => информация об организации, где он руководитель.
             $this->org_id = auth()->user()->getOrgId();
             $this->data['displayFilter'] = 0;
@@ -48,7 +48,7 @@ class FirstController extends AdminController
         $this->data['orgs'] = DB::table('organisations')->select('id','name')->get();
 
         if ($this->org_id == '') {
-            //Не получаем данные об организации
+            //Не выбрано никакой организации
             return $this->renderView();
             exit();
         }
@@ -59,8 +59,10 @@ class FirstController extends AdminController
         $this->data['org_manager'] = User::find($org->user_id)->name;
         $this->data['system'] = System::find($org->system_id)->name;
         $this->data['num_workplace'] = $org->num_workplace;
-        $this->data['budgets'] = Budget::join('catalog_items', 'budgets.catalog_id', '=', 'catalog_items.id')->select('name','value')->where('organisation_id','=',$org->id)->get();
-        $this->data['licenses'] = License::join('catalog_items', 'licenses.catalog_item_id', '=', 'catalog_items.id')->select('name','quantity')->where('organisation_id','=',$org->id)->get();
+         $this->data['licenses'] = License::join('catalog_items', 'licenses.catalog_item_id', '=', 'catalog_items.id')->select('name','quantity')->where('organisation_id','=',$org->id)->get();
+        $this->data['budgets'] = Budget::join('catalog_items', 'budgets.catalog_item_id', '=', 'catalog_items.id')->select('name','value')->where('organisation_id','=',$org->id)->whereIn('catalog_item_id', [18,3,23,22,23])->get(); //todo: значения должны браться из базы
+        $this->data['budgets_asutp'] = Budget::join('catalog_items', 'budgets.catalog_item_id', '=', 'catalog_items.id')->select('name','value')->where('organisation_id','=',$org->id)->whereIn('catalog_item_id', [34,35,36,37,38])->get(); //todo: значения должны браться из базы
+       
         $this->data['is_user_org_manager'] = auth()->user()->getOrgId() == $org->id;
 
         return $this->renderView();

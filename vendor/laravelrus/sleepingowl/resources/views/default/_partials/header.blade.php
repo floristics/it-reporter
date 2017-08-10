@@ -10,11 +10,11 @@
 	</a>
 	<div class="navbar-custom-menu">	
 		<ul class="nav navbar-nav">
-			@yield('navbar')
+			@stack('navbar')
 		</ul>
 
 		<ul class="nav navbar-nav navbar-right">
-            <li class="col-md-12 text-yellow"><a href="http://localhost/laravel/public/logout"><i class="fa fa-sign-out"></i>Выйти</a></li>
-			@yield('navbar.right')
+			@stack('navbar.right')
+		</ul>
 	</div>
 </nav>

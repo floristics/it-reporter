@@ -20,6 +20,7 @@ Vue.component('element-images', Vue.extend({
         return {
             errors: [],
             values: [],
+            uploading: false,
         }
     },
     ready () {
@@ -46,10 +47,8 @@ Vue.component('element-images', Vue.extend({
                 acceptedFiles: 'image/*',
                 clickable: button[0],
                 dictDefaultMessage: '',
-                headers: {
-                    'X-CSRF-TOKEN': window.Admin.Settings.token
-                },
                 sending () {
+                    self.uploading = true;
                     self.closeAlert();
                 },
                 success (file, response) {
@@ -59,28 +58,22 @@ Vue.component('element-images', Vue.extend({
                     if(_.isArray(response.errors)) {
                         self.$set('errors', response.errors);
                     }
+                },
+                complete(){
+                    self.uploading = false;
                 }
             });
         },
         image (uri) {
-            return ((uri.indexOf('http') === 0) ? uri : Admin.Settings.base_url + uri);
+            return ((uri.indexOf('http') === 0) ? uri : Admin.Url.upload(uri));
         },
         remove (image) {
             var self = this;
 
-            swal({
-                title: i18next.t('lang.message.are_you_sure'),
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: i18next.t('lang.button.yes')
-            }).then(() => {
+            Admin.Messages.confirm(trans('lang.message.are_you_sure')).then(() => {
                 self.$set('values', _.filter(self.values, function (img) {
                     return image != img
                 }));
-            }, dismiss => {
-
             });
         },
         closeAlert () {
@@ -88,6 +81,12 @@ Vue.component('element-images', Vue.extend({
         }
     },
     computed: {
+        uploadClass() {
+            if (!this.uploading) {
+                return 'fa fa-upload';
+            }
+            return 'fa fa-spinner fa-spin'
+        },
         has_values () {
             return this.values.length > 0
         },

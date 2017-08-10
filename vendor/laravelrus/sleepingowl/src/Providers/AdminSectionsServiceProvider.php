@@ -2,16 +2,20 @@
 
 namespace SleepingOwl\Admin\Providers;
 
-use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Auth\Access\Gate;
 
 class AdminSectionsServiceProvider extends ServiceProvider
 {
-
     /**
      * @var array  Associative array in form of: Model::class => Section::class
      */
     protected $sections = [];
+
+    /**
+     * @var array  Associative array in form of: Section::class => Policy::class
+     */
+    protected $policies = [];
 
     /**
      * @return array
@@ -49,8 +53,16 @@ class AdminSectionsServiceProvider extends ServiceProvider
         if (is_null($namespace)) {
             $namespace = config('sleeping_owl.policies_namespace', '\\App\\Policies\\');
         }
+
         $policies = [];
+        $preparedPolicies = collect($this->policies);
+
         foreach ($this->sections as $model => $section) {
+            if ($preparedPolicies->has($section)) {
+                $policies[$section] = $preparedPolicies->get($section);
+                continue;
+            }
+
             $policies[$section] = $namespace.class_basename($section).'SectionModelPolicy';
         }
 

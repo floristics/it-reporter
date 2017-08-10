@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\User;
+use App\Http\Sections\Users;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserPolicy
@@ -19,7 +20,7 @@ class UserPolicy
         //
     }
 
-    public function before(User $user, $ability, User $item)
+    public function before(User $user, $ability, Users $section, User $item)
     {
         return $user->isAdmin();
     }

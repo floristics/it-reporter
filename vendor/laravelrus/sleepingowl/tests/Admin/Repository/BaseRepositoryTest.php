@@ -2,7 +2,7 @@
 
 use Mockery as m;
 use Illuminate\Database\Eloquent\Model;
-use SleepingOwl\Admin\Repository\BaseRepository;
+use SleepingOwl\Admin\Repositories\BaseRepository;
 
 class BaseRepositoryTest extends TestCase
 {
@@ -18,7 +18,14 @@ class BaseRepositoryTest extends TestCase
      */
     public function getRepository($model = BaseRepositoryTestModel::class)
     {
-        return new BaseRepository($model);
+        $repository = new BaseRepository();
+        if (is_object($model)) {
+            $repository->setModel($model);
+        } else {
+            $repository->setClass($model);
+        }
+
+        return $repository;
     }
 
     /**

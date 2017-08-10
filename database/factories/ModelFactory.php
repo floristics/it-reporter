@@ -68,7 +68,7 @@ $factory->define(App\Workplace_soft::class, function (Faker\Generator $faker) {
 $factory->define(App\Budget::class, function (Faker\Generator $faker) {
     return [
         'organisation_id' => $faker->randomDigitNotNull,
-        'catalog_id' => $faker->randomDigitNotNull,
+        'catalog_item_id' => $faker->randomDigitNotNull,
         'value' => rand(100, 10000)*5.35,
     ];
 });

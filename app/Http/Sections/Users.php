@@ -12,6 +12,10 @@ use AdminFormElement;
 use SleepingOwl\Admin\Contracts\Initializable;
 use App\Role;
 
+
+
+use \SleepingOwl\Admin\Form\FormDefault;
+
 class Users extends Section //implements Initializable
 {
     /**
@@ -68,6 +72,7 @@ class Users extends Section //implements Initializable
                 AdminColumn::link('name', 'Login')->setWidth('200px'),
                 AdminColumn::text('email', 'Email')->setWidth('150px'),
                 AdminColumn::lists('roles.display_name')->setLabel('Roles')->setWidth('200px')
+
                 /*,AdminColumn::custom('Роль')->setWidth('100px')->setCallback(function($model) {
                     return  \App\Role::find($model->role_id)->name;
                 })*/
@@ -95,11 +100,11 @@ class Users extends Section //implements Initializable
     {
         return AdminForm::panel()->addBody([
             AdminFormElement::text('name', 'Login')->required(),
-            AdminFormElement::text('email', 'Email')->required()->addValidationRule('email'),
-            AdminFormElement::multiselect('roles', 'Roles')->setModelForOptions(new Role())->setDisplay('name'),
+            AdminFormElement::text('email', 'Email')->addValidationRule('email'),
+            AdminFormElement::multiselect('roles', 'Roles')->setModelForOptions(new Role())->setDisplay('name')
         ]);
     }
-
+       
     /**
      * @return FormInterface
      */

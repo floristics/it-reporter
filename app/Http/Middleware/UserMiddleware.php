@@ -17,7 +17,7 @@ class UserMiddleware
     public function handle($request, Closure $next, $guard = null)
     {
         if (!(Auth::guard($guard)->user()->isUser() or Auth::guard($guard)->user()->isAdmin())) {
-            return redirect('/');
+            return redirect('/login');
         }
 
         return $next($request);

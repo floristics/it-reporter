@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\User;
 use App\FundamentalSetting;
+use App\Http\Sections\FundamentalSettings;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FundamentalSettingsPolicy
@@ -20,7 +21,7 @@ class FundamentalSettingsPolicy
         //
     }
 
-    public function before(User $user, $ability, FundamentalSetting $item)
+    public function before(User $user, $ability, FundamentalSettings $section, FundamentalSetting $item)
     {
         return $user->isAdmin();
     }

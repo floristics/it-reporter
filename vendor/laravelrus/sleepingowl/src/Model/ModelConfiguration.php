@@ -4,8 +4,9 @@ namespace SleepingOwl\Admin\Model;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
-use SleepingOwl\Admin\Contracts\Form\FormInterface;
 use SleepingOwl\Admin\Contracts\Initializable;
+use SleepingOwl\Admin\Contracts\Form\FormInterface;
+use SleepingOwl\Admin\Display\DisplayDatatablesAsync;
 use SleepingOwl\Admin\Contracts\Display\DisplayInterface;
 
 class ModelConfiguration extends ModelConfigurationManager
@@ -196,6 +197,21 @@ class ModelConfiguration extends ModelConfigurationManager
     }
 
     /**
+     * @param string $action
+     * @param \Illuminate\Database\Eloquent\Model $model
+     *
+     * @return bool
+     */
+    public function can($action, Model $model)
+    {
+        if (! $this->checkAccess) {
+            return true;
+        }
+
+        return \Gate::allows($action, $model);
+    }
+
+    /**
      * @return bool
      */
     public function isCreatable()
@@ -342,15 +358,21 @@ class ModelConfiguration extends ModelConfigurationManager
     }
 
     /**
+     * @param array|null $payload
      * @return DisplayInterface|mixed
      */
-    public function fireDisplay()
+    public function fireDisplay(array $payload = [])
     {
         if (! is_callable($this->getDisplay())) {
             return;
         }
 
-        $display = app()->call($this->getDisplay());
+        $display = $this->app->call($this->getDisplay(), $payload);
+
+        if ($display instanceof DisplayDatatablesAsync) {
+            $display->setPayload($payload);
+        }
+
         if ($display instanceof DisplayInterface) {
             $display->setModelClass($this->getClass());
         }
@@ -391,7 +413,7 @@ class ModelConfiguration extends ModelConfigurationManager
             return;
         }
 
-        $form = app()->call($this->getCreate());
+        $form = $this->app->call($this->getCreate());
         if ($form instanceof DisplayInterface) {
             $form->setModelClass($this->getClass());
         }
@@ -438,7 +460,7 @@ class ModelConfiguration extends ModelConfigurationManager
             return;
         }
 
-        $form = app()->call($this->getEdit(), ['id' => $id]);
+        $form = $this->app->call($this->getEdit(), ['id' => $id]);
         if ($form instanceof DisplayInterface) {
             $form->setModelClass($this->getClass());
         }
@@ -499,7 +521,7 @@ class ModelConfiguration extends ModelConfigurationManager
     public function fireDelete($id)
     {
         if (is_callable($this->getDelete())) {
-            return app()->call($this->getDelete(), [$id]);
+            return $this->app->call($this->getDelete(), [$id]);
         }
     }
 
@@ -531,7 +553,7 @@ class ModelConfiguration extends ModelConfigurationManager
     public function fireDestroy($id)
     {
         if (is_callable($this->getDestroy())) {
-            return app()->call($this->getDestroy(), [$id]);
+            return $this->app->call($this->getDestroy(), [$id]);
         }
     }
 
@@ -563,7 +585,7 @@ class ModelConfiguration extends ModelConfigurationManager
     public function fireRestore($id)
     {
         if (is_callable($this->getRestore())) {
-            return app()->call($this->getRestore(), [$id]);
+            return $this->app->call($this->getRestore(), [$id]);
         }
     }
 

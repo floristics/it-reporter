@@ -2,38 +2,52 @@
 
 namespace App\Http\Sections;
 
+use App\Contract_annex as Annex;
 use App\Organisation;
+use Illuminate\Routing\Router;
 use SleepingOwl\Admin\Contracts\DisplayInterface;
 use SleepingOwl\Admin\Contracts\FormInterface;
+use SleepingOwl\Admin\Contracts\Template\Assets;
 use SleepingOwl\Admin\Section;
-use AdminColumn;
-use AdminDisplay;
+use \SleepingOwl\Admin\Facades\TableColumn as AdminColumn;
+use \SleepingOwl\Admin\Facades\Display as AdminDisplay;
 use AdminDisplayFilter;
 use AdminColumnFilter;
 use AdminForm;
-use AdminFormElement;
+use \SleepingOwl\Admin\Facades\FormElement as AdminFormElement;
 use SleepingOwl\Admin\Contracts\Initializable;
 use App\CatalogItem;
 use App\FundamentalSetting;
+use App\Contract_scan;
+use App\Helpers\Helper;
 
-class Contracts extends Section /*implements Initializable*/
+
+class Contracts extends Section implements Initializable
 {
+    use \SleepingOwl\Admin\Traits\Assets;
+
     protected $model = '\App\Contract';
-
-    /**
-     * @param $var - имя переменной FundamentalSettings
-     * @return FundamentalSettings::value
-     */
-    protected function getVarValue($var){
-        $model = FundamentalSetting::class;
-        $model = new $model;
-        return $model->where('var', $var)->first()->value;
-    }
-
 
     /**
      * Initialize class.
      */
+
+    public function __construct(\Illuminate\Contracts\Foundation\Application $app, $class)
+    {
+        parent::__construct($app, $class);
+        //Инициализируем ассеты для добавления js файла
+        $this->initializePackage();
+    }
+
+    public function initialize()
+    {
+        //Добавляем скрипт попапов со списком приложений
+        //todo: проверить аргументы функции, почему то скрипт вклинивается во всех разделах сайта, до объявления jquery.
+        $this->addScript('contractPopup','js/ContractPopup.js',['admin-default']);
+        //Внедряем ассеты
+        $this->includePackage();
+    }
+
   /*  public function initialize()
     {
         // Добавление пункта меню и счетчика кол-ва записей в разделе
@@ -49,7 +63,7 @@ class Contracts extends Section /*implements Initializable*/
     /**
      * @var bool
      */
-    protected $checkAccess = false;
+    protected $checkAccess = true;
 
     /**
      * @var string
@@ -66,11 +80,10 @@ class Contracts extends Section /*implements Initializable*/
      */
     public function onDisplay()
     {
-
         $data = AdminDisplay::datatables()
             ->with('_organisation','_pay_method','_contractor')
             ->setHtmlAttribute('class', 'table-primary')
-            ->setFilters([
+            ->setFilters([ //Возможность фильтровать по GET "?organisation_id="
                 AdminDisplayFilter::related('organisation_id')->setModel(Organisation::class)
             ])
             ->setOrder([[1, 'asc']]);
@@ -88,46 +101,55 @@ class Contracts extends Section /*implements Initializable*/
                 //AdminColumnFilter::text()->setPlaceholder('Companies'),
             ]);
         $data->setColumns(
- //               AdminColumn::action('Cr')
+//               AdminColumn::action('Cr')
 //                ->setIcon('fa fa-download'),
-                AdminColumn::filter('organisation_id')
-                    ->setWidth('40px'),
-                AdminColumn::text('_organisation.name', 'Организация'),
-                AdminColumn::text('name', 'Название')
-                    ->setHtmlAttribute('class', 'text-left font-blue-madison')
-                    ->append(AdminColumn::custom()
-                            ->setCallback(function($model) {
-                                if (!$model->scan == '') {
-                                    return  "<a class='btn btn-outline blue pull-left btn-xs' href='../". $model->scan ."' target='_blank'>
-                                             <i class='fa fa-download'></i>
-                                             </a>";
-                                } else {
-                                    return '';
-                                }
-                            })),
-                AdminColumn::text('_pay_method.name', 'Тип')
-                    ->setWidth('200px')
-                    ->setHtmlAttribute('class', 'text-left'),
-                  AdminColumn::text('_contractor.name', 'Подрядчик')
-                      ->setWidth('200px')
-                      ->setHtmlAttribute('class', 'text-left'),
-                AdminColumn::custom('Cумма')->setCallback(function($model) {
-                    return  strrev(wordwrap(strrev($model->value), 3, " ",TRUE)) . ' руб.';
-                }),
-                AdminColumn::datetime('create_date')
-                    ->setLabel('Дата заключения')
-                    ->setFormat('d.m.Y')
-                    ->setWidth('170px')
-                    ->setHtmlAttribute('class', 'text-center'),
-                AdminColumn::text('specialist','Специалист')
-                    ->setWidth('150px')
+            AdminColumn::filter('organisation_id')
+                ->setWidth('50'),
+            AdminColumn::text('_organisation.name', 'Организация'),
+            AdminColumn::text('name', 'Название')
+                ->setHtmlAttribute('class', 'text-left font-blue-madison')
+                ->append(AdminColumn::custom()
+                    ->setCallback(function($model) {
+                        if (!$model->scan == '') {
+                            return  "<a class='btn btn-outline blue pull-left btn-xs' href='../". $model->scan ."' target='_blank'>
+                                     <i class='fa fa-download'></i>
+                                     </a>";
+                        } else {
+                            return '';
+                        }
+                    })),
+            AdminColumn::text('_pay_method.name', 'Тип')
+                ->setWidth('')
+                ->setHtmlAttribute('class', 'text-left'),
+              AdminColumn::text('_contractor.name', 'Подрядчик')
+                  ->setWidth('')
+                  ->setHtmlAttribute('class', 'text-left'),
+            AdminColumn::custom('Cумма')->setCallback(function($model) {
+                return  strrev(wordwrap(strrev($model->value), 3, " ",TRUE)) . ' руб.';
+            }),
+            AdminColumn::datetime('create_date','Дата заключения')
+                ->setFormat('d.m.Y')
+                ->setWidth('')
+                ->setHtmlAttribute('class', 'text-center'),
+            AdminColumn::text('specialist','Специалист')
+                ->setWidth(''),
+            AdminColumn::custom('Приложения')->setCallback(function($model) {
+//todo: Большой запрос для каждого элемента, попробовать через annexes.name
+                $annexCount = Annex::where('contract_id',$model->getKey())->count();
+                if (!$annexCount) { return ;};
+                $html = '<span>'.$annexCount.' шт.</span><br>';
+                $html.= '<button onclick="showAnnexModal(\''.url('/home').'/annex?contract_id='.$model->getKey().'\')" class="btn btn-xs btn-outline blue">Показать</button>';
+                return $html;
+            })
 
- //               AdminColumn::lists('roles.name')->setLabel('Roles')->setWidth('200px')
-            )
-            ->paginate(10);
+            )->paginate(10);
+
+        //Модальное окно для вывода приложений
+        $data->getActions()->setView(view('AnnexModal'))->setPlacement('after.panel');
 
         return $data;
     }
+
     /**
      * @param int $id
      *
@@ -136,18 +158,6 @@ class Contracts extends Section /*implements Initializable*/
     public function onEdit($id)
     {
         $data =  AdminForm::panel()->setHtmlAttribute('enctype', 'multipart/form-data');
-/*
-        $data->addHeader(AdminFormElement::columns()
-                ->addColumn([
-                    AdminFormElement::text('firstName', 'First Name')->required()
-                ], 3)->addColumn([
-                    AdminFormElement::text('lastName', 'Last Name')->required()
-                ], 3)->addColumn([
-                    AdminFormElement::date('birthday', 'Birthday')->setFormat('d.m.Y')->required()
-                ])
-        );
-*/
-
 
         $displayOrganisations = [];
         if (auth()->user()->isUser()){
@@ -164,17 +174,18 @@ class Contracts extends Section /*implements Initializable*/
                 AdminFormElement::select('organisation_id', 'Организация')->setModelForOptions(new Organisation)->setDisplay('name')->required('Выберите организацию')
             ];
         };
+        $lol = new Contract_scan();
         $data->addBody(AdminFormElement::columns()
                 ->addColumn($displayOrganisations, 4)
                 ->addColumn([
                     AdminFormElement::select('pay_method', 'Тип')->setModelForOptions(CatalogItem::class)->setLoadOptionsQueryPreparer(function($item, $query) {
-                        return $query->where('catalog_id', $this->getVarValue('contract_type_list'));
+                        return $query->where('catalog_id', Helper::getVarValue('contract_type_list'));
                      })
                         ->setDisplay('name')->required('Выберите тип договора')
                 ], 4)
                 ->addColumn([
                     AdminFormElement::select('contractor', 'Подрядчик')->setModelForOptions(CatalogItem::class)->setLoadOptionsQueryPreparer(function($item, $query) {
-                        return $query->where('catalog_id', $this->getVarValue('contractor_list'));
+                        return $query->where('catalog_id', Helper::getVarValue('contractor_list'));
                     })
                         ->setDisplay('name')->required('Выберите подрядчика по договору')
                 ], 4)//todo номер каталога с подрядчиками
@@ -183,7 +194,7 @@ class Contracts extends Section /*implements Initializable*/
                 ], 4)
                 ->addColumn([
                     AdminFormElement::select('pay_period', 'Период оплаты')->setModelForOptions(CatalogItem::class)->setLoadOptionsQueryPreparer(function($item, $query) {
-                        return $query->where('catalog_id', $this->getVarValue('pay_period_list'));
+                        return $query->where('catalog_id', Helper::getVarValue('pay_period_list'));
                     })
                         ->setDisplay('name')
                         ->required('Выберите периодичность оплат по договору')
@@ -200,15 +211,36 @@ class Contracts extends Section /*implements Initializable*/
                     AdminFormElement::textarea('comment', 'Комментарий')
                 ], 8),
 
-                AdminFormElement::file('scan', 'Загрузите скан договора (300*300 dpi)')->required('Загрузите скан договора')
+            AdminFormElement::file('scan', 'Загрузите скан основного договора (300*300 dpi)')->setModel($lol)->setUploadSettings(['contract_id'=>'2', 'path' => 'localhost'])
         );
-/*
-            [
-                AdminFormElement::text('name', 'Login')->required(),
-                AdminFormElement::text('email', 'Email')->required()->addValidationRule('email'),
-                AdminFormElement::multiselect('roles', 'Roles')->setModelForOptions(new Role())->setDisplay('name'),
+
+        //dd (AdminFormElement::file('scan', 'Загрузите скан основного договора (300*300 dpi)')->setModel($lol)->setUploadSettings(['contract_id'=>'2', 'path' => 'localhost'])
+        //); exit();
+        // todo: Доработать отправку файлов!
+
+        // Секция приложенний для договора
+        if (!isset($id)) {//Если договор еще не создан
+            $data->addFooter(
+                AdminFormElement::html('<h4>Добавить приложения можно после добавления основного договора</h4>')
+            );
+        } else {//Если редактируем существующий договор
+            $annexes = AdminFormElement::columns()->addColumn([AdminDisplay::table()
+                ->setModelClass(Annex::class)
+                ->setApply(function($query) use($id) {
+                $query->where('contract_id', $id); // Фильтруем список приложений по ID договора
+                })
+                ->setParameter('contract_id', $id)
+                ->setNewEntryButtonText('Добавить приложение')
+                ->setTitle('<h3>Добавление приложений к договору</h3>')
+                ->setColumns(
+                AdminColumn::text('name', 'Название документа')
+        )], 6);
+
+            $data->addBody([ $annexes
+                //,AdminFormElement::html('<a href="'.url('home').'/annex/create?contract_id='.$id.'" class="btn btn-success">Добавить приложение к договору</a>')
             ]);
-*/
+        }
+
         return $data;
     }
 
@@ -220,19 +252,5 @@ class Contracts extends Section /*implements Initializable*/
         return $this->onEdit(null);
     }
 
-    /**
-     * @return void
-     */
-    public function onDelete($id)
-    {
-        // todo: remove if unused
-    }
 
-    /**
-     * @return void
-     */
-    public function onRestore($id)
-    {
-        // todo: remove if unused
-    }
 }

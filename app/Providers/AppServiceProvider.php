@@ -13,6 +13,7 @@ class AppServiceProvider extends ServiceProvider
     protected $widgets = [
         \App\Widgets\DashboardBlock1::class,
         \App\Widgets\DashboardBlock2::class,
+        \App\Widgets\NavigationUserBlock::class,
         //\App\Widgets\NavigationUserBlock::class
     ];
 

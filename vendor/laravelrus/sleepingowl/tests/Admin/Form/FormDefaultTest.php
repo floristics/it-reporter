@@ -2,10 +2,10 @@
 
 use Mockery as m;
 use SleepingOwl\Admin\Form\FormDefault;
-use SleepingOwl\Admin\Contracts\RepositoryInterface;
 use SleepingOwl\Admin\Contracts\Form\FormButtonsInterface;
 use SleepingOwl\Admin\Contracts\Form\FormElementInterface;
 use SleepingOwl\Admin\Contracts\ModelConfigurationInterface;
+use SleepingOwl\Admin\Contracts\Repositories\RepositoryInterface;
 
 class FormDefaultTest extends TestCase
 {
@@ -49,6 +49,8 @@ class FormDefaultTest extends TestCase
             RepositoryInterface::class,
             $repository = m::mock(RepositoryInterface::class)
         );
+
+        $repository->shouldReceive('setClass')->once();
 
         $class = FormDefaultTestMockModel::class;
 
@@ -249,6 +251,8 @@ class FormDefaultTest extends TestCase
             $repository = m::mock(RepositoryInterface::class)
         );
 
+        $repository->shouldReceive('setClass')->once();
+
         $form = $this->getFormElement([
             $element = m::mock(FormElementInterface::class),
         ]);
@@ -301,6 +305,7 @@ class FormDefaultTest extends TestCase
             RepositoryInterface::class,
             $repository = m::mock(RepositoryInterface::class)
         );
+        $repository->shouldReceive('setClass')->once();
 
         $model = m::mock(FormDefaultTestMockModel::class);
 

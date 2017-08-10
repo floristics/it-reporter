@@ -19,10 +19,10 @@
 <!-- Количество сотрудников отдела -->
     <p>Сотрудников, согласно штатному расписанию: <strong>{{ $org->num_workplace}}</strong></p>
 
-<!-- Бюджет -->
+<!-- Бюджет ИТ -->
     <p>Бюджет ИТ:
         <ul>
-            @foreach( App\Budget::join('catalogs', 'budgets.catalog_id', '=', 'catalogs.id')->where('organisation_id','=',$org->id)->get() as $budget_section)
+            @foreach( App\Budget::join('catalogs', 'budgets.catalog_item_id', '=', 'catalogs.id')->where('organisation_id','=',$org->id)->get() as $budget_section)
                 <li>{{ $budget_section->name }} - <strong>{{ $budget_section->value }} </strong>руб.</li>
             @endforeach
         </ul>

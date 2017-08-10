@@ -8,8 +8,8 @@ use SleepingOwl\Admin\Traits\Renderable;
 use Illuminate\Database\Eloquent\Builder;
 use KodiComponents\Support\HtmlAttributes;
 use SleepingOwl\Admin\Contracts\WithModel;
-use SleepingOwl\Admin\Contracts\Display\ColumnInterface;
 use SleepingOwl\Admin\Display\Column\OrderByClause;
+use SleepingOwl\Admin\Contracts\Display\ColumnInterface;
 use SleepingOwl\Admin\Contracts\ModelConfigurationInterface;
 use SleepingOwl\Admin\Contracts\Display\OrderByClauseInterface;
 use SleepingOwl\Admin\Contracts\Display\TableHeaderColumnInterface;
@@ -168,7 +168,7 @@ abstract class TableColumn implements ColumnInterface
 
     /**
      * @param OrderByClauseInterface|bool|string|\Closure $orderable
-     *
+     * @deprecated
      * @return $this
      */
     public function setOrderable($orderable)
@@ -207,7 +207,7 @@ abstract class TableColumn implements ColumnInterface
     /**
      * @param Builder $query
      * @param string $direction
-     *
+     * @deprecated
      * @return $this
      */
     public function orderBy(Builder $query, $direction)
@@ -231,7 +231,7 @@ abstract class TableColumn implements ColumnInterface
         return [
             'attributes' => $this->htmlAttributesToString(),
             'model'      => $this->getModel(),
-            'append' => $this->getAppends(),
+            'append'     => $this->getAppends(),
         ];
     }
 

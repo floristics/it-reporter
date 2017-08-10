@@ -1,6 +1,7 @@
 <?php
 
 use SleepingOwl\Admin\Navigation\Page;
+use SleepingOwl\Admin\Navigation\Badge;
 
 // Default check access logic
 // AdminNavigation::setAccessLogic(function(Page $page) {
@@ -20,7 +21,6 @@ use SleepingOwl\Admin\Navigation\Page;
 // // or
 //
 // AdminSection::addMenuPage(\App\User::class);
-
 
 return [
     (new Page(''))
@@ -43,17 +43,30 @@ return [
         ->setTitle('Договоры')
         ->setPriority(3),
 
+   (new Page(App\Inf_resource::class))
+        ->setIcon('fa fa-list')
+        ->setTitle('Категорирование ИР')
+        ->setPriority(4),
+
+    (new Page(App\Organisation::class))
+        ->setIcon('fa fa-building')
+        ->setTitle('Организации')
+        ->setPriority(5)
+        ->setAccessLogic(function (Page $page) {
+            return auth()->user()->isAdmin();
+        }),
+
     [
         'title' => 'Information',
         'icon'  => 'fa fa-exclamation-circle',
-        'priority'    => 5,
+        'priority'    => 7,
         'url'   => route('admin.information'),
     ],
 
     [
         'title' => "Настройки",
         'icon' => 'fa fa-gear',
-        'priority'    => 4,
+        'priority'    => 6,
         'pages' => [
             (new Page(''))
                 ->setIcon('fa fa-gear')
@@ -64,13 +77,20 @@ return [
                     return auth()->user()->isAdmin();
                 }),
 
-            (new Page(App\Organisation::class))
+            (new Page())
                 ->setIcon('fa fa-building')
-                ->setTitle('Организации')
-                ->setPriority(2)
-                ->setAccessLogic(function (Page $page) {
-                    return auth()->user()->isAdmin();
-                }),
+                ->setTitle('Моя организация')
+                ->setPriority(4)
+                ->setUrl('/home/organisations/edit'),
+
+            (new Page())
+                ->setIcon('fa fa-users')
+                ->setTitle('Мои сотрудники')
+                ->setPriority(5)
+                ->addBadge(function() {
+                    return \App\Employee::where('status','=','1')->count();
+                },['class' => 'label-warning'])
+                ->setUrl('/home/employees'),
 
             (new Page(App\User::class))
                 ->setIcon('fa fa-users')
@@ -89,14 +109,14 @@ return [
                 }),
 
             (new Page(App\Budget::class))
-                ->setIcon('fa fa-circle')
+                ->setIcon('fa fa-money')
                 ->setTitle('Бюджеты')
-                ->setPriority(5),
+                ->setPriority(6),
 
             (new Page(App\License::class))
-                ->setIcon('fa fa-circle')
+                ->setIcon('fa fa-check-square-o ')
                 ->setTitle('Лицензии')
-                ->setPriority(6),
+                ->setPriority(7),
         ]
     ],
 

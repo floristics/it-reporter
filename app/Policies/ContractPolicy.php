@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use App\Contract;
+use App\Http\Sections\Contracts;
 
 class ContractPolicy
 {
@@ -20,7 +21,7 @@ class ContractPolicy
         //
     }
 
-    public function before(User $user, $ability, Contract $item)
+    public function before(User $user, $ability, Contracts $section, Contract $item)
     {
         /*
          * Инициализируется первой, если не вернет true/false, то инициализируется функция-действие.
@@ -30,31 +31,32 @@ class ContractPolicy
         }
     }
 
-    public function display(User $user, Contract $item)
+    public function display(User $user, Contracts $section, Contract $item)
     {
         return true;
     }
 
-    public function create(User $user, Contract $item)
+    public function create(User $user, Contracts $section, Contract $item)
     {
         return $user->isUser();
     }
 
-    public function edit(User $user, Contract $item)
+    public function edit(User $user, Contracts $section, Contract $item)
     {
+        return true;
         if ($user->isUser()){
             return $item->organisation_id == $user->GetOrgId();
         }
     }
 
-    public function restore(User $user, Contract $item)
+    public function restore(User $user, Contracts $section, Contract $item)
     {
-        return $this->edit($user, $item);
+        return $this->edit($user, $section, $item);
     }
 
-    public function delete(User $user, Contract $item)
+    public function delete(User $user, Contracts $section, Contract $item)
     {
-        return $this->edit($user, $item);
+        return $this->edit($user, $section, $item);
     }
 
 }

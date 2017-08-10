@@ -16,7 +16,7 @@ class CreateBudgetTable extends Migration
         Schema::create('budgets', function (Blueprint $table) {
             $table->increments('id');
             $table->smallInteger('organisation_id');
-            $table->smallInteger('catalog_id');
+            $table->smallInteger('catalog_item_id');
             $table->integer('value');
             $table->timestamps();
             //todo: Объединить первичный ключ на столбцы organisation_id и catalog_items_id

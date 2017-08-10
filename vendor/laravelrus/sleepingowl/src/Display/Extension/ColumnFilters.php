@@ -6,8 +6,9 @@ use Request;
 use KodiComponents\Support\HtmlAttributes;
 use SleepingOwl\Admin\Contracts\Initializable;
 use SleepingOwl\Admin\Contracts\Display\Placable;
-use SleepingOwl\Admin\Contracts\Display\Extension\ColumnFilterInterface;
+use SleepingOwl\Admin\Display\Column\Filter\Control;
 use SleepingOwl\Admin\Contracts\Display\NamedColumnInterface;
+use SleepingOwl\Admin\Contracts\Display\Extension\ColumnFilterInterface;
 
 class ColumnFilters extends Extension implements Initializable, Placable
 {
@@ -66,6 +67,14 @@ class ColumnFilters extends Extension implements Initializable, Placable
         $this->columnFilters[] = $filter;
 
         return $this;
+    }
+
+    /**
+     * Remove last element.
+     */
+    public function pop()
+    {
+        array_pop($this->columnFilters);
     }
 
     /**
@@ -135,11 +144,12 @@ class ColumnFilters extends Extension implements Initializable, Placable
      */
     public function toArray()
     {
+        $this->setHtmlAttribute('data-display', class_basename($this->getDisplay()));
+
         return [
             'filters' => $this->columnFilters,
             'attributes' => $this->htmlAttributesToString(),
             'tag' => $this->getPlacement() == 'table.header' ? 'thead' : 'tfoot',
-            'displayClass' => get_class($this->getDisplay()),
         ];
     }
 
@@ -161,6 +171,16 @@ class ColumnFilters extends Extension implements Initializable, Placable
         }
 
         $this->validNumberOfFilters();
+
+        $filters = collect($this->columnFilters);
+
+        if ($filters->last() === null) {
+            $filters->pop();
+            $filters->push(new Control());
+        }
+
+        $this->columnFilters = $filters;
+
         $this->prepareView();
     }
 
@@ -187,7 +207,7 @@ class ColumnFilters extends Extension implements Initializable, Placable
             $column = $columns->get($index);
             $columnFilter = array_get($this->all(), $index);
 
-            if ($column && $column instanceOf NamedColumnInterface && $columnFilter) {
+            if ($column && $column instanceof NamedColumnInterface && $columnFilter) {
                 $columnFilter->apply(
                     $column,
                     $query,

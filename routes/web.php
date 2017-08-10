@@ -11,10 +11,9 @@
 |
 */
 
-
-
 Route::get('/', function () {
-    return view('welcome');
+    //return view('welcome');
+    return redirect('/login');
 });
 
 Route::get('/hw', 'FirstController@renderHW');
@@ -102,6 +101,14 @@ Route::group(['middleware' => ['admin']], function(){
     });
 
 });
+
+/*
+ * ORM training
+ */
+Route::get('/train/orm', [
+    'as' => 'train.orm',
+    'uses' => '\App\Http\Controllers\TrainController@orm',
+]);
 
 
 /*

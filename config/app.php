@@ -51,7 +51,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'http://it-reporter.hcsds.kem'),
 
     /*
     |--------------------------------------------------------------------------
@@ -169,6 +169,10 @@ return [
         GrahamCampbell\Exceptions\ExceptionsServiceProvider::class,
         //
 
+        /*
+         * Barryvdh ide-helper
+         */
+        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
 
         /*
          * SleepingOwl Service Provider

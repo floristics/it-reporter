@@ -3,13 +3,14 @@
 namespace SleepingOwl\Admin\Model;
 
 use BadMethodCallException;
+use Illuminate\Support\Facades\URL;
 use SleepingOwl\Admin\Navigation\Page;
 use Illuminate\Database\Eloquent\Model;
 use SleepingOwl\Admin\Navigation\Badge;
 use Illuminate\Contracts\Events\Dispatcher;
-use SleepingOwl\Admin\Contracts\RepositoryInterface;
 use KodiComponents\Navigation\Contracts\BadgeInterface;
 use SleepingOwl\Admin\Contracts\ModelConfigurationInterface;
+use SleepingOwl\Admin\Contracts\Repositories\RepositoryInterface;
 
 /**
  * @method bool creating(\Closure $callback)
@@ -50,6 +51,11 @@ abstract class ModelConfigurationManager implements ModelConfigurationInterface
      * @var \Illuminate\Contracts\Events\Dispatcher
      */
     protected static $dispatcher;
+
+    /**
+     * @var \Illuminate\Contracts\Foundation\Application
+     */
+    protected $app;
 
     /**
      * @var string
@@ -97,19 +103,18 @@ abstract class ModelConfigurationManager implements ModelConfigurationInterface
     private $repository;
 
     /**
-     * SectionModelConfiguration constructor.
-     *
+     * @param \Illuminate\Contracts\Foundation\Application $app
      * @param string $class
-     *
-     * @throws \Exception
      */
-    public function __construct($class)
+    public function __construct(\Illuminate\Contracts\Foundation\Application $app, $class)
     {
+        $this->app = $app;
         $this->class = $class;
-        $this->model = app($class);
 
-        $this->repository = app(RepositoryInterface::class, [$class]);
+        $this->model = $app->make($class);
 
+        $this->repository = $app->make(RepositoryInterface::class);
+        $this->repository->setClass($class);
         if (! $this->alias) {
             $this->setDefaultAlias();
         }
@@ -303,7 +308,7 @@ abstract class ModelConfigurationManager implements ModelConfigurationInterface
             return true;
         }
 
-        return \Gate::allows($action, $model);
+        return \Gate::allows($action, [$this, $model]);
     }
 
     /**
@@ -344,6 +349,16 @@ abstract class ModelConfigurationManager implements ModelConfigurationInterface
         array_unshift($parameters, $this->getAlias());
 
         return route('admin.model', $parameters);
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return string
+     */
+    public function getCancelUrl(array $parameters = [])
+    {
+        return URL::previous() ?: $this->getDisplayUrl($parameters);
     }
 
     /**
@@ -457,12 +472,44 @@ abstract class ModelConfigurationManager implements ModelConfigurationInterface
     }
 
     /**
+     * @return Navigation
+     */
+    public function getNavigation()
+    {
+        return $this->app['sleeping_owl.navigation'];
+    }
+
+    /**
      * @param int $priority
      * @param string|\Closure|BadgeInterface $badge
      *
      * @return Page
      */
     public function addToNavigation($priority = 100, $badge = null)
+    {
+        $page = $this->makePage($priority, $badge);
+
+        $this->getNavigation()->addPage($page);
+
+        return $page;
+    }
+
+    /**
+     * @param $page_id
+     * @return \KodiComponents\Navigation\Contracts\PageInterface|null
+     */
+    public function getNavigationPage($page_id)
+    {
+        return $this->getNavigation()->getPages()->findById($page_id);
+    }
+
+    /**
+     * @param int $priority
+     * @param string|\Closure|BadgeInterface $badge
+     *
+     * @return Page
+     */
+    protected function makePage($priority = 100, $badge = null)
     {
         $page = new Page($this->getClass());
         $page->setPriority($priority);
@@ -474,8 +521,6 @@ abstract class ModelConfigurationManager implements ModelConfigurationInterface
 
             $page->setBadge($badge);
         }
-
-        app('sleeping_owl.navigation')->addPage($page);
 
         return $page;
     }
@@ -505,7 +550,7 @@ abstract class ModelConfigurationManager implements ModelConfigurationInterface
      * @param string $event
      * @param bool $halt
      * @param Model|null $model
-     * @param array $args
+     * @param array $payload
      *
      * @return mixed
      */

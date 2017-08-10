@@ -4,12 +4,12 @@ namespace SleepingOwl\Admin\Display;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
-use SleepingOwl\Admin\Contracts\Form\FormInterface;
 use SleepingOwl\Admin\Traits\FormElements;
 use Illuminate\Contracts\Support\Renderable;
 use SleepingOwl\Admin\Traits\VisibleCondition;
-use SleepingOwl\Admin\Contracts\Display\DisplayInterface;
+use SleepingOwl\Admin\Contracts\Form\FormInterface;
 use SleepingOwl\Admin\Contracts\Display\TabInterface;
+use SleepingOwl\Admin\Contracts\Display\DisplayInterface;
 use SleepingOwl\Admin\Contracts\ModelConfigurationInterface;
 
 /**
@@ -38,9 +38,34 @@ class DisplayTabbed implements DisplayInterface, FormInterface
         }
     }
 
+    /**
+     * Initialize tabbed interface.
+     */
     public function initialize()
     {
         $this->initializeElements();
+
+        $tabs = $this->getTabs();
+
+        foreach ($tabs as $tab) {
+            if (method_exists($tab->getContent(), 'getElements')) {
+                $elements = $tab->getContent()->getElements();
+                foreach ($elements as $element) {
+                    if ($element instanceof self) {
+                        foreach ($element->getTabs() as $subTab) {
+                            if ($subTab->getName() == session('sleeping_owl_tab_id')) {
+                                $tab->setActive(true);
+                                $subTab->setActive(true);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ($tab->getName() == session('sleeping_owl_tab_id')) {
+                $tab->setActive(true);
+            }
+        }
 
         $activeTabs = $this->getTabs()->filter(function (TabInterface $tab) {
             return $tab->isActive();
@@ -188,7 +213,9 @@ class DisplayTabbed implements DisplayInterface, FormInterface
     public function validateForm(\Illuminate\Http\Request $request, ModelConfigurationInterface $model = null)
     {
         $this->getTabs()->each(function ($tab) use ($request, $model) {
-            if ($tab instanceof FormInterface) {
+            $tabId = $request->get('sleeping_owl_tab_id');
+
+            if ($tab instanceof FormInterface && $tab->getName() == $tabId) {
                 $tab->validateForm($request, $model);
             }
         });
@@ -203,7 +230,9 @@ class DisplayTabbed implements DisplayInterface, FormInterface
     public function saveForm(\Illuminate\Http\Request $request, ModelConfigurationInterface $model = null)
     {
         $this->getTabs()->each(function (TabInterface $tab) use ($request, $model) {
-            if ($tab instanceof FormInterface) {
+            $tabId = $request->get('sleeping_owl_tab_id');
+
+            if ($tab instanceof FormInterface && $tab->getName() == $tabId) {
                 $tab->saveForm($request, $model);
             }
         });
@@ -220,6 +249,14 @@ class DisplayTabbed implements DisplayInterface, FormInterface
      * @return bool
      */
     public function isReadonly()
+    {
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValueSkipped()
     {
         return false;
     }

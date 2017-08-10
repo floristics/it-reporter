@@ -10,7 +10,7 @@ return [
     |
     */
 
-    'title' => 'Будущее уже рядом',
+    'title' => 'It-Reporter',
 
     /*
     |--------------------------------------------------------------------------
@@ -185,7 +185,9 @@ return [
         'AdminColumnFilter' => SleepingOwl\Admin\Facades\TableColumnFilter::class,
         'AdminDisplayFilter' => SleepingOwl\Admin\Facades\DisplayFilter::class,
         'AdminForm' => SleepingOwl\Admin\Facades\Form::class,
+        'AdminFormButton' => SleepingOwl\Admin\Facades\FormButtons::class,
         'AdminFormElement' => SleepingOwl\Admin\Facades\FormElement::class,
         'AdminDisplay' => SleepingOwl\Admin\Facades\Display::class,
+        'AdminWidgets' => SleepingOwl\Admin\Facades\Widgets::class,
     ],
 ];

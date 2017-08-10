@@ -10,7 +10,8 @@
         "laravelrus/sleepingowl": "4.*@dev",
         "graham-campbell/exceptions": "^9.1",
         "intervention/image": "^2.3",
-        "barryvdh/laravel-debugbar": "^2.3"
+        "barryvdh/laravel-debugbar": "^2.3",
+        "barryvdh/laravel-ide-helper": "v2.3.2"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

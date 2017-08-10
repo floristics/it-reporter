@@ -1,8 +1,7 @@
 <section>
 <div class="row">
     <div class="col-lg-12 col-xs-12 col-sm-12">
-        <script src="../public/plugins/amcharts/amcharts.js" type="text/javascript"></script>
-        <script src="../public/plugins/amcharts/serial.js" type="text/javascript"></script>
+        <script src="/plugins/amcharts/serial.js" type="text/javascript"></script>
         <style type="text/css">
             .amcharts-graph-g1 .amcharts-graph-stroke {
                 stroke-dasharray: 3px 3px;
@@ -404,8 +403,13 @@
     </div>
     <!-- END CHART -->
 
+    
+    
+    
+    
+    
     <div class="col-lg-6 col-xs-12 col-sm-12">
-        <script src="../public/plugins/amcharts/pie.js" type="text/javascript"></script>
+        <script src="/plugins/amcharts/pie.js" type="text/javascript"></script>
         <script>
             AmCharts.makeChart("piediv", {
                 "type": "pie",
@@ -459,179 +463,50 @@
     <!-- END PIE -->
 
     <div class="col-lg-6 col-xs-12 col-sm-12">
-        <script>
-            // this chart is exactly the same as in areaStacked.html, only made using JSON except JavaScript API
-            var chartData2 = [{
-               "year": 2000,
-                   "cars": 1587,
-                   "motorcycles": 650,
-                   "bicycles": 121
-           }, {
-               "year": 1995,
-                   "cars": 1567,
-                   "motorcycles": 683,
-                   "bicycles": 146
-           }, {
-               "year": 1996,
-                   "cars": 1617,
-                   "motorcycles": 691,
-                   "bicycles": 138
-           }, {
-               "year": 1997,
-                   "cars": 1630,
-                   "motorcycles": 642,
-                   "bicycles": 127
-           }, {
-               "year": 1998,
-                   "cars": 1660,
-                   "motorcycles": 699,
-                   "bicycles": 105
-           }, {
-               "year": 1999,
-                   "cars": 1683,
-                   "motorcycles": 721,
-                   "bicycles": 109
-           }, {
-               "year": 2000,
-                   "cars": 1691,
-                   "motorcycles": 737,
-                   "bicycles": 112
-           }, {
-               "year": 2001,
-                   "cars": 1298,
-                   "motorcycles": 680,
-                   "bicycles": 101
-           }, {
-               "year": 2002,
-                   "cars": 1275,
-                   "motorcycles": 664,
-                   "bicycles": 97
-           }, {
-               "year": 2003,
-                   "cars": 1246,
-                   "motorcycles": 648,
-                   "bicycles": 93
-           }, {
-               "year": 2004,
-                   "cars": 1218,
-                   "motorcycles": 637,
-                   "bicycles": 101
-           }, {
-               "year": 2005,
-                   "cars": 1213,
-                   "motorcycles": 633,
-                   "bicycles": 87
-           }, {
-               "year": 2006,
-                   "cars": 1199,
-                   "motorcycles": 621,
-                   "bicycles": 79
-           }, {
-               "year": 2007,
-                   "cars": 1110,
-                   "motorcycles": 210,
-                   "bicycles": 81
-           }, {
-               "year": 2008,
-                   "cars": 1165,
-                   "motorcycles": 232,
-                   "bicycles": 75
-           }, {
-               "year": 2009,
-                   "cars": 1145,
-                   "motorcycles": 219,
-                   "bicycles": 88
-           }, {
-               "year": 2010,
-                   "cars": 1163,
-                   "motorcycles": 201,
-                   "bicycles": 82
-           }, {
-               "year": 2011,
-                   "cars": 1180,
-                   "motorcycles": 285,
-                   "bicycles": 87
-           }, {
-               "year": 2012,
-                   "cars": 1159,
-                   "motorcycles": 277,
-                   "bicycles": 71
-           }];
+        <!-- amCharts javascript sources -->
+		<script type="text/javascript" src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+		<script type="text/javascript" src="https://www.amcharts.com/lib/3/pie.js"></script>
+		<script type="text/javascript" src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+		
 
-           AmCharts.makeChart("serialdiv", {
-               type: "serial",
-               dataProvider: chartData2,
-               marginTop: 10,
-               categoryField: "year",
-               categoryAxis: {
-                   gridAlpha: 0.07,
-                   axisColor: "#DADADA",
-                   startOnAxis: true,
-                   guides: [{
-                       category: "2001",
-                       lineColor: "#CC0000",
-                       lineAlpha: 1,
-                       dashLength: 2,
-                       inside: true,
-                       labelRotation: 90,
-                       label: "fines for speeding increased"
-                   }, {
-                       category: "2007",
-                       lineColor: "#CC0000",
-                       lineAlpha: 1,
-                       dashLength: 2,
-                       inside: true,
-                       labelRotation: 90,
-                       label: "motorcycle maintenance fee introduced"
-                   }]
-               },
-               valueAxes: [{
-                   stackType: "regular",
-                   gridAlpha: 0.07,
-                   title: "Traffic incidents"
-               }],
-
-               graphs: [{
-                   type: "line",
-                   title: "Cars",
-                   hidden: true,
-                   valueField: "cars",
-                   lineAlpha: 0,
-                   fillAlphas: 0.6,
-                   balloonText: "<img src='../public/plugins/amcharts/images/car.png' style='vertical-align:bottom; margin-right: 10px; width:28px; height:21px;'><span style='font-size:14px; color:#000000;'><b>[[value]]</b></span>"
-               }, {
-                   type: "line",
-                   title: "Motorcycles",
-                   valueField: "motorcycles",
-                   lineAlpha: 0,
-                   fillAlphas: 0.6,
-                   balloonText: "<img src='../public/plugins/amcharts/images/motorcycle.png' style='vertical-align:bottom; margin-right: 10px; width:28px; height:21px;'><span style='font-size:14px; color:#000000;'><b>[[value]]</b></span>"
-               }, {
-                   type: "line",
-                   title: "Bicycles",
-                   valueField: "bicycles",
-                   lineAlpha: 0,
-                   fillAlphas: 0.6,
-                   balloonText: "<img src='../public/plugins/amcharts/images/bicycle.png' style='vertical-align:bottom; margin-right: 10px; width:28px; height:21px;'><span style='font-size:14px; color:#000000;'><b>[[value]]</b></span>"
-               }],
-               legend: {
-                   position: "bottom",
-                   valueText: "[[value]]",
-                   valueWidth: 100,
-                   valueAlign: "left",
-                   equalWidths: false,
-                   periodValueText: "total: [[value.sum]]"
-               },
-               chartCursor: {
-                   cursorAlpha: 0
-               },
-               chartScrollbar: {
-                   color: "FFFFFF"
-               }
-
-           });
-        </script>
-
+		<!-- amCharts javascript code -->
+		<script type="text/javascript">
+			AmCharts.makeChart("serialdiv",
+				{
+					"type": "pie",
+					"balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+					"innerRadius": "40%",
+					"labelRadius": 0,
+					"marginBottom": 0,
+					"marginTop": 0,
+					"titleField": "category",
+					"valueField": "column-1",
+					"theme": "light",
+					"allLabels": [],
+					"balloon": {},
+					"legend": {
+						"enabled": true,
+						"align": "center",
+						"markerType": "circle"
+					},
+					"titles": [],
+					"dataProvider": [
+						{
+							"category": "Руководители",
+							"column-1": "500"
+						},
+						{
+							"category": "Специалисты",
+							"column-1": "400"
+						},
+						{
+							"category": "Ведущие специалисты",
+							"column-1": "200"
+						}
+					]
+				}
+			);
+		</script>
         <!-- BEGIN SERIAL -->
                 <div class="portlet light ">
                     <div class="portlet-title">
@@ -648,8 +523,90 @@
                 </div>
             </div>
             <!-- END SERIAL -->
+    
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <!-- amCharts javascript sources -->
+		<!-- amCharts javascript sources -->
+		<script type="text/javascript" src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+		<script type="text/javascript" src="https://www.amcharts.com/lib/3/serial.js"></script>
+		<script type="text/javascript" src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+		
 
-</div>
+		<!-- amCharts javascript code -->
+		<script type="text/javascript">
+			AmCharts.makeChart("chartdiv",
+				{
+					"type": "serial",
+					"categoryField": "category",
+					"startDuration": 1,
+					"backgroundAlpha": 0.8,
+					"theme": "light",
+					"categoryAxis": {
+						"gridPosition": "start"
+					},
+					"trendLines": [
+						{
+							"id": "TrendLine-1"
+						}
+					],
+					"graphs": [
+						{
+							"balloonText": "[[value]]    [[category]] ",
+							"colorField": "color",
+							"fillAlphas": 1,
+							"id": "AmGraph-1",
+							"lineColorField": "color",
+							"title": "graph 1",
+							"type": "column",
+							"valueField": "column-1"
+						}
+					],
+					"guides": [],
+					"valueAxes": [
+						{
+							"id": "ValueAxis-1",
+							"title": "Стоимость сделки"
+						}
+					],
+					"allLabels": [],
+					"balloon": {},
+					"titles": [
+						{
+							"alpha": 0.94,
+							"id": "Title-1",
+							"size": 15,
+							"text": "Топ 5 лучших договоров за год"
+						}
+					],
+					"dataProvider": [
+						{
+							"category": "СДС",
+							"column-1": 8
+						},
+						{
+							"category": "GoodLine",
+							"column-1": 16
+						},
+						{
+							"category": "Альянс",
+							"column-1": 2
+						},
+						{
+							"category": "Атвинта",
+							"column-1": 7
+						},
+						{
+							"category": "Касперский",
+							"column-1": 5
+						}
+					]
+				}
+			);
+		</script>
+    </div>
+    
+    
     <!-- BEGIN OLD VERSION --<
     <div class="row">
         <div class="col-lg-4">

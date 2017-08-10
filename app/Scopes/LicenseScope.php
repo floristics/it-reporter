@@ -17,8 +17,8 @@ class LicenseScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
-        if (auth()->user()->isUser()) {
-            $builder->where('organisation_id', '=', auth()->user()->GetOrgId());
-        }
+        //if (auth()->user()->isUser()) {
+            //$builder->where('organisation_id', '=', auth()->user()->GetOrgId());
+        //}
     }
 }
